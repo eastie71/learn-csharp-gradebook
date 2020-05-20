@@ -6,12 +6,28 @@ namespace GradeBook
     // Event delegate example
     public delegate void GradeAddedDelegate(object sender, EventArgs args);
 
-    public class Book 
+    // NamedObject for Inheritence example
+    public class NamedObject
     {
-        public Book(string name)
+        public NamedObject(string name)
+        {
+            this.Name = name;
+        }
+
+        // Special property type allows "Name" to be "got" and "set"
+        public string Name
+        {
+            get;
+            set;
+        }
+    }
+
+    public class Book : NamedObject
+    {
+        public Book(string name) : base(name)
         {
             grades = new List<double>();
-            this.Name = name;
+            //this.Name = name;
         }
         public void AddGrade(double grade) 
         {
@@ -90,11 +106,5 @@ namespace GradeBook
         }
 
         private List<double> grades;
-        // Special property type allows "Name" to be "got" and "set"
-        public string Name
-        {
-            get;
-            set;
-        }
     }
 }
