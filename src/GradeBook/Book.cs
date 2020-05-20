@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace GradeBook
 {
+    // Event delegate example
+    public delegate void GradeAddedDelegate(object sender, EventArgs args);
+
     public class Book 
     {
         public Book(string name)
@@ -14,6 +17,10 @@ namespace GradeBook
         {
             if (grade <= 100 && grade >= 0) {
                 grades.Add(grade);
+                if (GradeAdded != null)
+                {
+                    GradeAdded(this, new EventArgs());
+                }
             }
             else 
             {
@@ -21,7 +28,7 @@ namespace GradeBook
             }
         }
 
-        public void AddLetterGrade(char letter)
+        public void AddGrade(char letter)
         {
             switch (letter)
             {
@@ -39,6 +46,8 @@ namespace GradeBook
                     break;
             }
         }
+
+        public event GradeAddedDelegate GradeAdded;
 
         public Statistics GetStatistics() 
         {
@@ -81,6 +90,11 @@ namespace GradeBook
         }
 
         private List<double> grades;
-        public string Name;
+        // Special property type allows "Name" to be "got" and "set"
+        public string Name
+        {
+            get;
+            set;
+        }
     }
 }

@@ -3,6 +3,9 @@ using Xunit;
 
 namespace GradeBook.Tests
 {
+    // Special function template called a "delegate"
+    public delegate string WriteLogDelegate(string logMessage);
+
     public class TypeTests
     {
         [Fact]
@@ -127,6 +130,48 @@ namespace GradeBook.Tests
         Book GetBook(string name)
         {
             return new Book(name);
+        }
+
+        [Fact]
+        public void WriteLogDelegateCanPointToMethod()
+        {
+            WriteLogDelegate log;
+
+            log = ReturnMessageBack;
+
+            var result = log("Hello!!");
+            Assert.Equal("Hello!!", result);
+        }
+
+        string ReturnMessageBack(string message)
+        {
+            return message;
+        }
+
+        int count = 0;
+        [Fact]
+        public void DelegatesCanCastToMultipleMethods()
+        {
+            WriteLogDelegate log;
+
+            log = ReturnUpperMessageBack;
+            // Add another method to call!
+            log += ReturnLowerMessageBack;
+
+            var result = log("Hello!!");
+            Assert.Equal(2, count);
+        }
+
+        string ReturnUpperMessageBack(string message)
+        {
+            count++;
+            return message.ToUpper();
+        }
+
+        string ReturnLowerMessageBack(string message)
+        {
+            count++;
+            return message.ToLower();
         }
     }
 }

@@ -7,7 +7,10 @@ namespace GradeBook
     {
         static void Main(string[] args)
         {
-            var book = new Book("Craig's Grade Book");   
+            var book = new Book("Craig's Grade Book");
+            book.GradeAdded += MyOnGradeAddedMethod;
+            book.GradeAdded -= MyOnGradeAddedMethod;
+            book.GradeAdded += MyOnGradeAddedMethod;   
             // book.AddGrade(89.1);
             // book.AddGrade(90.5);
             // book.AddGrade(77.5);
@@ -37,6 +40,11 @@ namespace GradeBook
             Console.WriteLine($"The highest grade is {stats.Highest:N1}");
             Console.WriteLine($"The lowest grade is {stats.Lowest:N1}");
             Console.WriteLine($"The letter grade is {stats.Letter}");
+        }
+
+        static void MyOnGradeAddedMethod(object sender, EventArgs e)
+        {
+            Console.WriteLine("A Grade was Added!!");
         }
     }
 }
