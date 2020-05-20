@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace GradeBook
 {
@@ -22,13 +23,69 @@ namespace GradeBook
         }
     }
 
-    public abstract class Book : NamedObject
+    public interface IBook
+    {
+        void AddGrade(double grade);
+        Statistics GetStatistics();
+        string Name { get; }
+        event GradeAddedDelegate GradeAdded;
+    }
+
+    public abstract class Book : NamedObject, IBook
     {
         protected Book(string name) : base(name)
         {
         }
 
+        public abstract event GradeAddedDelegate GradeAdded;
+
         public abstract void AddGrade(double grade);
+
+        public abstract Statistics GetStatistics();
+    }
+
+    public class DiskBook : Book
+    {
+        public DiskBook(string name) : base(name)
+        {
+        }
+
+        public override event GradeAddedDelegate GradeAdded;
+
+        public override void AddGrade(double grade)
+        {
+            string filename = $"{this.Name}.txt";
+            // Wrap gradefile in "using" statement so that the Dispose/Close method is called
+            // as it implements the IDisposable interface.
+            using (var gradefile = File.AppendText(filename))
+            {
+                gradefile.WriteLine(grade);
+                if (GradeAdded != null)
+                {
+                    GradeAdded(this, new EventArgs());
+                }
+            }
+        }
+
+        public override Statistics GetStatistics()
+        {
+            var result = new Statistics();
+            string filename = $"{this.Name}.txt";
+            // Wrap gradefile in "using" statement so that the Dispose/Close method is called
+            // as it implements the IDisposable interface.
+            using (var gradefile = File.OpenText(filename))
+            {
+                while (true) {
+                    var gradeLine = gradefile.ReadLine();
+                    if (String.IsNullOrEmpty(gradeLine))
+                        break;
+                    var grade = double.Parse(gradeLine);
+                    result.SetValue(grade);
+                }
+            }
+            return result;
+        }
+
     }
 
     public class InMemoryBook : Book
@@ -72,45 +129,15 @@ namespace GradeBook
             }
         }
 
-        public event GradeAddedDelegate GradeAdded;
+        public override event GradeAddedDelegate GradeAdded;
 
-        public Statistics GetStatistics() 
+        public override Statistics GetStatistics() 
         {
             var result = new Statistics();
-            result.Average = 0.0;
-            result.Highest = double.MinValue;
-            result.Lowest = double.MaxValue;
-            
             for (var index = 0; index < this.grades.Count; index++)
             {
-                result.Highest = Math.Max(grades[index], result.Highest);
-                result.Lowest = Math.Min(grades[index], result.Lowest);
-                result.Average += grades[index];
+                result.SetValue(grades[index]);
             }
-            result.Average /= this.grades.Count;
-
-            switch (result.Average)
-            {
-                case var d when d >= 90:
-                    result.Letter = 'A';
-                    break;
-                case var d when d >= 80:
-                    result.Letter = 'B';
-                    break;
-                case var d when d >= 70:
-                    result.Letter = 'C';
-                    break;
-                case var d when d >= 60:
-                    result.Letter = 'D';
-                    break;
-                case var d when d >= 50:
-                    result.Letter = 'E';
-                    break;
-                default:
-                    result.Letter = 'F';
-                    break;
-            }
-
             return result;
         }
 
