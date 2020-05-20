@@ -14,8 +14,15 @@ namespace GradeBook.Tests
             book.AddGrade(90.5);
             book.AddGrade(77.3);
             // Should not add invalid grade
-            book.AddGrade(105);
-
+            try {
+                book.AddGrade(105);
+            }
+            catch(ArgumentException ex) 
+            {
+                Console.WriteLine("Add Grade failed as expected.");
+                Console.WriteLine(ex.Message);
+            }
+            
             // Act
             var results = book.GetStatistics();
             // Assert
